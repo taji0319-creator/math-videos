@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>数学ショート動画</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="ds/industry-1c13e93b-2453-4b9c-aabd-c3f9e237421c/styles.css">
+<script src="ds/industry-1c13e93b-2453-4b9c-aabd-c3f9e237421c/_ds_bundle.js"></script>
+<style>body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)}a{color:var(--color-accent-700)}a:hover{color:var(--color-accent-900)}</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+  <header class="nav" style="border-bottom:1px solid var(--color-divider)">
+    <div class="nav-brand" style="font-size:22px;letter-spacing:0.02em">数学ショート動画</div>
+    <span style="font-size:13px;color:var(--color-neutral-700)">{{ count }} 本</span>
+  </header>
+  <main style="width:100%;max-width:1200px;margin:0 auto;padding:var(--space-6) var(--space-4);box-sizing:border-box;display:flex;flex-direction:column;gap:var(--space-6)">
+    <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:var(--space-6);align-items:start">
+      <div ref="{{ wrapRef }}" style="width:{{ current.frameW }};justify-self:center;display:flex;flex-direction:column;gap:var(--space-2);background:var(--color-bg)">
+        <div class="blueprint" style="background:#000;aspect-ratio:{{ current.aspect }};width:100%;display:flex;flex:1;min-height:0">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <video ref="{{ playerRef }}" src="{{ current.src }}" playsInline="{{ true }}" onClick="{{ toggle }}" onTimeUpdate="{{ onTime }}" onLoadedMetadata="{{ onTime }}" onPlay="{{ onPlay }}" onPause="{{ onPause }}" onEnded="{{ onPause }}" style="width:100%;height:100%;object-fit:contain;display:block;cursor:pointer"></video>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap">
+          <button class="btn btn-secondary" onClick="{{ toggle }}" style="min-width:84px">{{ playLabel }}</button>
+          <input type="range" min="0" max="{{ dur }}" step="0.1" value="{{ time }}" onChange="{{ seek }}" aria-label="再生位置" style="flex:1;min-width:120px;accent-color:var(--color-accent)"></input>
+          <span style="font-size:13px;font-variant-numeric:tabular-nums;color:var(--color-neutral-700)">{{ timeLabel }}</span>
+          <button class="btn btn-ghost" onClick="{{ cycleRate }}" title="再生速度">速度 {{ rateLabel }}</button>
+          <button class="btn btn-ghost" onClick="{{ toggleMute }}">{{ muteLabel }}</button>
+          <button class="btn btn-ghost" onClick="{{ fullscreen }}">全画面</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:var(--space-3);max-width:420px">
+        <span class="tag tag-accent" style="align-self:flex-start">{{ current.topic }}</span>
+        <h1 style="margin:0;font-size:44px;line-height:1.05;text-wrap:pretty">{{ current.title }}</h1>
+        <div style="font-size:13px;color:var(--color-neutral-700)">{{ current.pos }} / {{ count }}</div>
+        <div style="display:flex;gap:var(--space-2);margin-top:var(--space-2)">
+          <button class="btn btn-secondary" onClick="{{ prev }}">← 前へ</button>
+          <button class="btn btn-primary blueprint" onClick="{{ next }}"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>次へ →</button>
+        </div>
+      </div>
+    </section>
+    <sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
+      <section style="display:flex;flex-direction:column;gap:var(--space-3)">
+        <h2 style="margin:0;font-size:26px;display:flex;align-items:baseline;gap:var(--space-2)">{{ g.name }}<span style="font-family:var(--font-body);font-size:13px;font-weight:400;color:var(--color-neutral-700)">{{ g.n }} 本</span></h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:var(--space-4)">
+          <sc-for list="{{ g.items }}" as="v" hint-placeholder-count="3">
+            <button onClick="{{ v.select }}" class="card blueprint" style="cursor:pointer;text-align:left;font:inherit;color:inherit;padding:var(--space-2);border-color:{{ v.border }}" style-hover="border-color:var(--color-accent)">
+              <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+              <div style="position:relative;aspect-ratio:16/9;background:var(--color-neutral-200);overflow:hidden">
+                <video src="{{ v.thumb }}" muted="{{ true }}" preload="metadata" playsInline="{{ true }}" onLoadedMetadata="{{ v.onMeta }}" style="width:100%;height:100%;object-fit:contain;display:block;pointer-events:none"></video>
+                <span style="position:absolute;right:6px;bottom:6px;background:var(--color-text);color:var(--color-bg);font-size:11px;padding:2px 6px">{{ v.dur }}</span>
+                <sc-if value="{{ v.active }}" hint-placeholder-val="{{ false }}">
+                  <span class="tag" style="position:absolute;left:6px;top:6px;background:var(--color-accent);color:var(--color-bg)">再生中</span>
+                </sc-if>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:2px;padding:var(--space-1) var(--space-1) 0">
+                <div class="card-title">{{ v.title }}</div>
+              </div>
+            </button>
+          </sc-for>
+        </div>
+      </section>
+    </sc-for>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { i: 0, durs: {}, playing: false, time: 0, dur: 0, rate: 1, muted: false };
+  playerRef = React.createRef();
+  wrapRef = React.createRef();
+  rates = [1, 1.5, 2, 0.5];
+  ctrl() {
+    const p = () => this.playerRef.current;
+    return {
+      toggle: () => { const v = p(); if (!v) return; v.paused ? v.play().catch(() => {}) : v.pause(); },
+      onTime: e => this.setState({ time: e.target.currentTime, dur: e.target.duration || 0 }),
+      onPlay: () => { const v = p(); if (v) v.playbackRate = this.state.rate; this.setState({ playing: true }); },
+      onPause: () => this.setState({ playing: false }),
+      seek: e => { const v = p(); if (v) v.currentTime = +e.target.value; this.setState({ time: +e.target.value }); },
+      cycleRate: () => { const r = this.rates[(this.rates.indexOf(this.state.rate) + 1) % this.rates.length]; const v = p(); if (v) v.playbackRate = r; this.setState({ rate: r }); },
+      toggleMute: () => { const v = p(); const m = !this.state.muted; if (v) v.muted = m; this.setState({ muted: m }); },
+      fullscreen: () => { const v = p(); if (!v) return; document.fullscreenElement ? document.exitFullscreen() : (v.requestFullscreen || v.webkitEnterFullscreen).call(v); },
+      playLabel: this.state.playing ? '一時停止' : '再生',
+      rateLabel: this.state.rate + '倍',
+      muteLabel: this.state.muted ? '音声オン' : 'ミュート',
+      time: this.state.time, dur: this.state.dur || 0,
+      timeLabel: this.fmt(this.state.time || 0.0001).replace('—', '0:00') + ' / ' + this.fmt(this.state.dur),
+    };
+  }
+  videos = [
+    { src: 'uploads/hirei_reidai_betsukai_v3.mp4', title: '比例の例題（別解）', topic: '比例・反比例', portrait: true },
+    { src: 'uploads/hanpirei_reidai_betsukai.mp4', title: '反比例の例題（別解）', topic: '比例・反比例', portrait: true },
+    { src: 'uploads/graph_reidai.mp4', title: 'グラフの例題', topic: '比例・反比例', portrait: true },
+    { src: 'uploads/iko_animation.mp4', title: '移項', topic: '移項' },
+    { src: 'uploads/iko_animation_bunsu.mp4', title: '移項（分数）', topic: '移項' },
+    { src: 'uploads/iko_animation_shosu.mp4', title: '移項（小数）', topic: '移項' },
+  ];
+  go(i, play) {
+    const n = this.videos.length;
+    this.setState({ i: (i + n) % n }, () => {
+      const p = this.playerRef.current;
+      if (play && p) { p.load(); p.play().catch(() => {}); }
+    });
+  }
+  fmt(s) { if (!s || !isFinite(s)) return '—'; s = Math.round(s); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+  renderVals() {
+    const { i, durs } = this.state;
+    const cur = this.videos[i];
+    const names = [...new Set(this.videos.map(v => v.topic))];
+    const groups = names.map(name => {
+      const items = this.videos.map((v, k) => ({ v, k })).filter(x => x.v.topic === name).map(({ v, k }) => ({
+        title: v.title, thumb: v.src + '#t=0.8', active: k === i,
+        border: k === i ? 'var(--color-accent)' : 'var(--color-divider)',
+        dur: this.fmt(durs[k]),
+        select: () => { this.go(k, true); window.scrollTo({ top: 0, behavior: 'smooth' }); },
+        onMeta: e => { const d = e.target.duration; this.setState(s => ({ durs: { ...s.durs, [k]: d } })); },
+      }));
+      return { name, n: items.length, items };
+    });
+    return {
+      ...this.ctrl(), wrapRef: this.wrapRef,
+      count: this.videos.length, playerRef: this.playerRef,
+      current: { ...cur, pos: i + 1, aspect: cur.portrait ? '9/16' : '16/9', frameW: cur.portrait ? 'min(100%, calc(78vh * 9 / 16))' : '100%' }, groups,
+      prev: () => this.go(i - 1, true), next: () => this.go(i + 1, true),
+    };
+  }
+}
+</script>
+</body>
+</html>
